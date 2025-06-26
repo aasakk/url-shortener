@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>URL Shortener</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f3f4f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            width: 500px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        h2 {
+            color: #333333;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin-top: 5px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        p {
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        hr {
+            margin: 30px 0;
+            border: none;
+            border-top: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>URL Shortener</h2>
+
+        <!-- Shorten URL Section -->
+        <input type="text" id="originalUrl" placeholder="Enter URL to shorten" size="50">
+        <button onclick="shorten()">Shorten</button>
+        <p id="shortenResult"></p>
+
+        <hr>
+
+        <!-- Get Original URL Section -->
+        <input type="text" id="shortCode" placeholder="Enter short code (e.g. a1b2c3)" size="30">
+        <button onclick="fetchOriginal()">Get Original URL</button>
+        <p id="originalResult"></p>
+    </div>
+
+    <script>
+        async function shorten() {
+            const url = document.getElementById("originalUrl").value;
+            try {
+                const response = await fetch("/shorten", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ originalUrl: url })
+                });
+
+                if (!response.ok) throw new Error("Server error");
+
+                const data = await response.json();
+                const fullShortUrl = `http://localhost:9096/go/${data.shortCode}`;
+
+                document.getElementById("shortenResult").innerHTML =
+                    `Short URL: <a href="${fullShortUrl}" target="_blank">${fullShortUrl}</a>`;
+            } catch (err) {
+                document.getElementById("shortenResult").innerText = "Error: " + err.message;
+            }
+        }
+
+        async function fetchOriginal() {
+            const code = document.getElementById("shortCode").value;
+            try {
+                const response = await fetch(`/original/${code}`);
+                if (!response.ok) throw new Error("Short code not found");
+
+                const data = await response.json();
+                document.getElementById("originalResult").innerHTML =
+                    `Original URL: <a href="${data.originalUrl}" target="_blank">${data.originalUrl}</a>`;
+            } catch (err) {
+                document.getElementById("originalResult").innerText = "Error: " + err.message;
+            }
+        }
+    </script>
+</body>
+</html>
+
