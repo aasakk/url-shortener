@@ -37,8 +37,13 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-    </dependencies>
-
+    
+<dependency>
+  <groupId>com.timgroup</groupId>
+  <artifactId>java-statsd-client</artifactId>
+  <version>3.1.0</version>
+</dependency>
+</dependencies>
     <build>
         <finalName>shortener</finalName>
         <plugins>

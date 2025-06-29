@@ -1,6 +1,9 @@
 package com.example.shortener.service;
 
 import org.springframework.stereotype.Service;
+import com.timgroup.statsd.NonBlockingStatsDClient;
+import com.timgroup.statsd.StatsDClient;
+
 
 import java.io.*;
 import java.util.HashMap;
@@ -11,6 +14,7 @@ public class URLService {
     private final Map<String, String> urlToCode = new HashMap<>();
     private final Map<String, String> codeToUrl = new HashMap<>();
     private final File storageFile;
+    private final StatsDClient statsd = new NonBlockingStatsDClient("urlshortener", "localhost", 8125);
 
     public URLService() {
         // This ensures the file works even when running as JAR
@@ -33,11 +37,15 @@ public class URLService {
         urlToCode.put(originalUrl, shortCode);
         codeToUrl.put(shortCode, originalUrl);
         saveToFile(shortCode, originalUrl);
+        statsd.incrementCounter("shorten.success");
+
         return shortCode;
     }
 
     public String getOriginalUrl(String shortCode) {
         System.out.println("Looking up shortCode: " + shortCode);
+        statsd.incrementCounter("resolve.success");
+
         return codeToUrl.get(shortCode);
     }
 
