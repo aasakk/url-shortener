@@ -22,17 +22,17 @@ public class URLService {
     private final File storageFile;
     private final StatsDClient statsd = new NonBlockingStatsDClient("urlshortener", "localhost", 8125);
 
-    public URLService() {
-        // This ensures the file works even when running as JAR
-    	this.metricRegistry = metricRegistry;
+    @Autowired
+    public URLService(MetricRegistry metricRegistry) {
+        this.metricRegistry = metricRegistry;
         this.shortenCounter = metricRegistry.counter("shorten-url-counter");
+
         String filePath = System.getProperty("user.dir") + File.separator + "urls.txt";
         storageFile = new File(filePath);
         System.out.println("Loading from: " + storageFile.getAbsolutePath());
         loadFromFile();
-        
-
     }
+
 
     public String shortenUrl(String originalUrl) {
     	shortenCounter.inc();
