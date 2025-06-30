@@ -27,3 +27,4 @@ public class MetricsConfig {
         return new MetricRegistry();
     }
 }
+

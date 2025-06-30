@@ -4,6 +4,10 @@ import org.springframework.stereotype.Service;
 import com.timgroup.statsd.NonBlockingStatsDClient;
 import com.timgroup.statsd.StatsDClient;
 
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.MetricRegistry;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.util.HashMap;
@@ -11,6 +15,8 @@ import java.util.Map;
 
 @Service
 public class URLService {
+	private MetricRegistry metricRegistry;
+	private final Counter shortenCounter;
     private final Map<String, String> urlToCode = new HashMap<>();
     private final Map<String, String> codeToUrl = new HashMap<>();
     private final File storageFile;
@@ -18,13 +24,18 @@ public class URLService {
 
     public URLService() {
         // This ensures the file works even when running as JAR
+    	this.metricRegistry = metricRegistry;
+        this.shortenCounter = metricRegistry.counter("shorten-url-counter");
         String filePath = System.getProperty("user.dir") + File.separator + "urls.txt";
         storageFile = new File(filePath);
         System.out.println("Loading from: " + storageFile.getAbsolutePath());
         loadFromFile();
+        
+
     }
 
     public String shortenUrl(String originalUrl) {
+    	shortenCounter.inc();
         if (originalUrl.contains("localhost") || originalUrl.contains("127.0.0.1")) {
             throw new IllegalArgumentException("Shortening localhost URLs is not allowed.");
         }
