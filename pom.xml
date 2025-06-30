@@ -30,6 +30,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+		
 
         <!-- Spring Boot Test (includes JUnit 5) -->
         <dependency>
@@ -43,7 +44,28 @@
   <artifactId>java-statsd-client</artifactId>
   <version>3.1.0</version>
 </dependency>
+
+<dependency>
+    <groupId>io.dropwizard.metrics</groupId>
+    <artifactId>metrics-core</artifactId>
+    <version>4.2.21</version>
+</dependency>
+
+<dependency>
+    <groupId>io.dropwizard.metrics</groupId>
+    <artifactId>metrics-graphite</artifactId>
+    <version>4.2.21</version>
+</dependency>
+
+
 </dependencies>
+<repositories>
+    <repository>
+        <id>central</id>
+        <url>https://repo.maven.apache.org/maven2</url>
+    </repository>
+</repositories>
+
     <build>
         <finalName>shortener</finalName>
         <plugins>
