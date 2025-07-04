@@ -12,6 +12,10 @@ import org.springframework.stereotype.Service;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
+import com.codahale.metrics.graphite.Graphite;
+import com.codahale.metrics.graphite.GraphiteReporter;
+import java.net.InetSocketAddress;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class URLService {
@@ -26,7 +30,13 @@ public class URLService {
     public URLService(MetricRegistry metricRegistry) {
         this.metricRegistry = metricRegistry;
         this.shortenCounter = metricRegistry.counter("shorten-url-counter");
-
+        Graphite graphite = new Graphite(new InetSocketAddress("localhost", 2003));
+        GraphiteReporter reporter = GraphiteReporter.forRegistry(metricRegistry)
+                .prefixedWith("urlshortener")
+                .convertRatesTo(TimeUnit.SECONDS)
+                .convertDurationsTo(TimeUnit.MILLISECONDS)
+                .build(graphite);
+        reporter.start(10, TimeUnit.SECONDS);
         String filePath = System.getProperty("user.dir") + File.separator + "urls.txt";
         storageFile = new File(filePath);
         System.out.println("Loading from: " + storageFile.getAbsolutePath());
