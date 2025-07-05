@@ -24,19 +24,20 @@ public class URLService {
     private final Map<String, String> urlToCode = new HashMap<>();
     private final Map<String, String> codeToUrl = new HashMap<>();
     private final File storageFile;
-    private final StatsDClient statsd = new NonBlockingStatsDClient("urlshortener", "localhost", 8125);
-
+    private StatsDClient statsd;
+    
     @Autowired
     public URLService(MetricRegistry metricRegistry) {
         this.metricRegistry = metricRegistry;
         this.shortenCounter = metricRegistry.counter("shorten-url-counter");
-        Graphite graphite = new Graphite(new InetSocketAddress("localhost", 2003));
+        Graphite graphite = new Graphite(new InetSocketAddress("graphite", 2003));
         GraphiteReporter reporter = GraphiteReporter.forRegistry(metricRegistry)
                 .prefixedWith("urlshortener")
                 .convertRatesTo(TimeUnit.SECONDS)
                 .convertDurationsTo(TimeUnit.MILLISECONDS)
                 .build(graphite);
         reporter.start(10, TimeUnit.SECONDS);
+        this.statsd = new NonBlockingStatsDClient("urlshortener", "graphite", 8125);
         String filePath = System.getProperty("user.dir") + File.separator + "urls.txt";
         storageFile = new File(filePath);
         System.out.println("Loading from: " + storageFile.getAbsolutePath());
